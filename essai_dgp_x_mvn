@@ -1,0 +1,21 @@
+/*DGP*/
+** Génération de données : 50 séries de 100 observations chacunes;
+proc iml;
+X1=normal(j(100,50,1));
+X2=normal(j(100,50,1));
+X3=normal(j(100,50,1));
+X4=normal(j(100,50,1));
+X5=normal(j(100,50,1));
+eps=normal(j(100,50,1))*0.1;
+Y=0.7*X1+0.6*X2+0.5*X3+0.4*X4+0.3*X5+eps;
+**print Y;
+
+** Normale multivariée;
+sigma=i(50);
+print sigma;
+null=j(50,1,0);
+print null;
+mvn=randnormal(50,null,sigma);
+print mvn;
+
+quit;
