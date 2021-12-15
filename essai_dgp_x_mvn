@@ -18,4 +18,12 @@ print null;
 mvn=randnormal(50,null,sigma);
 print mvn;
 
+**autre manière de procéder pour Y (revenir après)
+beta={0.7,0.6,0.5,0.4,0.3}
+print beta;
+
+create ytest from y;
+append from y;
+close ytest;
+
 quit;
