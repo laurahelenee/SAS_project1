@@ -1,0 +1,38 @@
+/*DGP*/
+** Génération de données : 50 séries de 100 observations chacunes;
+proc iml;
+** Normale multivariée : DGP;
+sigma=i(50);
+**print sigma;
+null=j(50,1,0); **vect moyenne;
+**print null;
+mvn=randnormal(50,null,sigma); **pour faire tordre le modèle on change ça + changer la sk;
+**print mvn;
+eps=normal(j(nrow(mvn),1,0))*0.1; **0 = seed;
+Y=0.7*mvn[,1]+0.6*mvn[,2]+0.5*mvn[,3]+0.4*mvn[,4]+0.3*mvn[,5]+eps;
+
+** créa bd qui va contenir y et tous les x;
+total=y||mvn; 
+nom='y'||('X1':'X50');
+print nom;
+
+**exporter les données; 
+create total from total[colname=nom];
+append from total;
+close total;
+
+submit;
+
+proc glmselect data=total;
+model y=x1-x50 / selection=forward ;**on se base sur le sbc;
+run;
+
+proc glmselect data=total plots=all;
+model y=x1-x50 / selection=lasso ;
+run;
+
+**comment recup les variables + code qui par la suite stock l'info puis reg la proba d'avoir les bonnes variables, histo où la freq -- proba que ça sorte
+50 bâtons 
+graph de proba jointe, des probas qui sortent ensemble ; 
+
+endsubmit;
