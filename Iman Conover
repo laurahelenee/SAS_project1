@@ -2,17 +2,21 @@ proc IML;
 
   /* au préalable il faut créer le module : ImanConoverTransform */
 
-  call randseed(123);
+    call randseed(123);
+  sigma=i(50); **print sigma;
+  null=j(50,1,0);
+  mvn=randnormal(50,null,sigma);
   u = j(nrow(mvn),nrow(mvn),1);  
   *print u;
   call randgen(u, "Uniform");
   print u;
   do i=1 to nrow(u);
     u[i,i]=1;
+  do i=1 to nrow(u);
   end;
   print u;
 
-  W = ImanConoverTransform(X, C);
+  W = ImanConoverTransform(mvn, u);
   RankCorr = corr(W, "Spearman");
   print RankCorr;
 quit;
