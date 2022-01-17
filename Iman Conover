@@ -1,0 +1,18 @@
+proc IML;
+
+  /* au préalable il faut créer le module : ImanConoverTransform */
+
+  call randseed(123);
+  u = j(nrow(mvn),nrow(mvn),1);  
+  *print u;
+  call randgen(u, "Uniform");
+  print u;
+  do i=1 to nrow(u);
+    u[i,i]=1;
+  end;
+  print u;
+
+  W = ImanConoverTransform(X, C);
+  RankCorr = corr(W, "Spearman");
+  print RankCorr;
+quit;
