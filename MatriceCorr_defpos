@@ -1,0 +1,11 @@
+proc iml;
+T = toeplitz({1 0.075 0.05 0.045 0.02});
+null1 = j(5,45,0);
+T1 = T || null1;
+null2 = j(45,5,0);
+sigma1 = i(45);
+T2 = null2 || sigma1;
+tplz = T1//T2;
+print tplz;
+tl = inv(tplz);
+print tl;
