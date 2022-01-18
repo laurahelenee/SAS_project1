@@ -38,6 +38,11 @@ model y=x1-x50 / selection=lasso ;
 modelaverage;
 run;
 
+proc glmselect data=total plots=all;
+model y=x1-x50 / selection=elasticnet (choose = AICC stop = AICC l2=0.001) ; **chercher ce que veut dire le L2;
+modelaverage;
+run;
+
 **comment recup les variables + code qui par la suite stock l'info puis reg la proba d'avoir les bonnes variables, histo où la freq -- proba que ça sorte
 50 bâtons 
 graph de proba jointe, des probas qui sortent ensemble ; 
