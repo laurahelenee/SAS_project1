@@ -9,3 +9,7 @@ tplz = T1//T2;
 print tplz;
 tl = inv(tplz);
 print tl;
+
+
+smallestEigenvalue = min( eigval(tplz) );  /* compute smallest eigenvalue */
+print smallestEigenvalue;
