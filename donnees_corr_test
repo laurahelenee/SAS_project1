@@ -1,0 +1,50 @@
+/* Données corrélées entre elles */
+
+** Création de la matrice toeplitz qui va remplacer le sigma dans la loi multinomiale variée;
+proc iml;
+tplz = toeplitz({1 0.075 0.05 0.045 0.02 0.3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0});
+
+null=j(50,1,0); **vect moyenne;
+**print null;
+mvn2=randnormal(50,null,tplz);
+**print mvn;
+eps=normal(j(nrow(mvn2),1,0))*0.1; **0 = seed;
+Y=0.7*mvn2[,1]+0.6*mvn2[,2]+0.5*mvn2[,3]+0.4*mvn2[,4]+0.3*mvn2[,5]+eps;
+
+** créa bd qui va contenir y et tous les x;
+total2=y||mvn2; 
+nom='y'||('X1':'X50');
+print nom;
+
+**exporter les données; 
+create total2 from total2[colname=nom];
+append from total2;
+close total2;
+
+submit;
+
+proc glmselect data=total2 plots=all;
+model y=x1-x50 / selection=forward;
+modelaverage;
+run;
+
+
+proc glmselect data=total2 plots=all;
+model y=x1-x50 / selection=backward ;
+modelaverage;
+run;
+
+proc glmselect data=total2 plots=all;
+model y=x1-x50 / selection=LAR (choose = AICC stop = AICC);
+modelaverage;
+run;
+
+proc glmselect data=total2 plots=all;
+model y=x1-x50 / selection=LASSO (choose = AICC stop = AICC) ;
+modelaverage;
+run;
+
+proc glmselect data=total2 plots=all;
+model y=x1-x50 / selection=elasticnet (choose = AICC stop = AICC l2=0.001) ; **chercher ce que veut dire le L2;
+modelaverage;
+run;
