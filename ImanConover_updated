@@ -35,7 +35,7 @@ proc IML;
   print W; *on obtient alors une transformation des 5 premières séries: elles gardent la même loi mais sont corrélées;
   
   RankCorr = corr(W, "Spearman");
-  print RankCorr; *donne la matrice de corrélation obtenue;
+  print RankCorr; *donne la matrice de corrélation obtenue - pas intéressant pour nous;
   
   mvn2 = W||mvn[,6:50]; *données finales;
 
