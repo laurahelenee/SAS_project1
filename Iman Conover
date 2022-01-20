@@ -1,22 +1,41 @@
 proc IML;
 
-  /* au préalable il faut créer le module : ImanConoverTransform */
+  /* MODULE IMAN CONOVER */
+  
+  start ImanConoverTransform(X, C);
+   N = nrow(X);
+   S = J(N, ncol(X));
+   /* T1: Create normal scores of each column */
+   do i = 1 to ncol(X);
+      ranks = ranktie(X[,i], "mean");          /* tied ranks */
+      S[,i] = quantile("Normal", ranks/(N+1)); /* van der Waerden scores */
+   end;
+   /* T2: apply two linear transformations to the scores */
+   CS = corr(S);        /* correlation of scores */
+   Q = root(CS);        /* Cholesky root of correlation of scores */
+   P = root(C);         /* Cholesky root of target correlation */
+   T = solve(Q,P);      /* same as  T = inv(Q) * P; */
+   Y = S*T;             /* transform scores: Y has rank corr close to target C */
+ 
+   /* T3: Permute or reorder data in the columns of X to have the same ranks as Y */
+   W = X;
+   do i = 1 to ncol(Y);
+      rank = rank(Y[,i]);          /* use ranks as subscripts, so no tied ranks */
+      tmp = W[,i]; call sort(tmp); /* sort column by ranks */
+      W[,i] = tmp[rank];           /* reorder the column of X by the ranks of M */
+   end;
+   return( W );
+  finish;
+  store module=(ImanConoverTransform);
 
-    call randseed(123);
-  sigma=i(50); **print sigma;
-  null=j(50,1,0);
-  mvn=randnormal(50,null,sigma);
-  u = j(nrow(mvn),nrow(mvn),1);  
-  *print u;
-  call randgen(u, "Uniform");
-  print u;
-  do i=1 to nrow(u);
-    u[i,i]=1;
-  do i=1 to nrow(u);
-  end;
-  print u;
-
-  W = ImanConoverTransform(mvn, u);
+  /* MATRICE TOEPLITZ : corrélations des 5 premières séries */
+  
+  T = toeplitz({1 0.75 0.5 0.45 0.2}); *matrice Toeplitz = matrice de corrélation cible;
+  W = ImanConoverTransform(mvn[,1:5], T); *on prend les 5 premières séries normales centrées réduites (vecteur moyenne nul et matrice de cov = Id);
+  print W; *on obtient alors une transformation des 5 premières séries: elles gardent la même loi mais sont corrélées;
+  
   RankCorr = corr(W, "Spearman");
-  print RankCorr;
-quit;
+  print RankCorr; *donne la matrice de corrélation obtenue;
+  
+  mvn2 = W||mvn[,6:50]; *données finales;
+
