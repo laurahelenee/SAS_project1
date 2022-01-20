@@ -8,9 +8,16 @@ x=x//normal(0)*sigma[i]+mu[i];
 end;    
 call histogram(x); **c'est optionnel;
 
-**3 lois qui s'imbriquent 
+/* 3lois qui s'imbriquent 
 tirer des chiffres entre 1 et 3
-floor : plus proche entier naturel le plus proche 
-g�n�ration d'une loi normale de 0 * sigma(i) + mu 
-si je fais �a plein de fois, j'ai 3 lois normales imbriqu�es
-faire un histogramme;
+floor : prend juste le chiffre de l'unité 
+génération d'une loi normale de 0 * sigma(i) + mu 
+si je fais ça plein de fois, j'ai 3 lois normales imbriquées
+faire un histogramme 
+
+Ne pas oublier de mettre des moments négatifs pour avoir des valeurs extrêmes des 2 côtés
+Lars et Lasso ne marchent plus en théorie
+Alternatives de loi pour obtenir des valeurs extrêmes : chi2, bêta
+*/
+
+
