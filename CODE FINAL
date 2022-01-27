@@ -1,0 +1,306 @@
+proc iml;
+
+	sigma=i(50); *identité;
+	null=j(50,1,0);
+	mvn=randnormal(50,null,sigma); **pour faire tordre le modèle on change ça + changer la sk;
+
+	/* DGP 1: hyptohèses de base vérifiées */
+	eps=normal(j(nrow(mvn),1,0))*0.1; **0 = seed;
+	Y=0.7*mvn[,1]+0.6*mvn[,2]+0.5*mvn[,3]+0.4*mvn[,4]+0.3*mvn[,5]+eps;
+	total=y||mvn; 
+	nom='y'||('X1':'X50');
+
+	create total from total[colname=nom];
+	append from total;
+	close total;
+
+	submit;
+	proc glmselect data=total plots=all;
+		model y=x1-x50 / selection=forward(select=AICC) ;
+		run;
+	proc glmselect data=total plots=all;
+		model y=x1-x50 / selection=forward(select=BIC) ;
+		run;
+	proc glmselect data=total plots=all;
+		model y=x1-x50 / selection=forward(select=SBC) ;
+		run;
+	proc glmselect data=total plots=all;
+		model y=x1-x50 / selection=forward(select=PRESS) ;
+		run;
+
+	proc glmselect data=total plots=all;
+		model y=x1-x50 / selection=backward(select=AICC) ;
+		run;
+	proc glmselect data=total plots=all;
+		model y=x1-x50 / selection=backward(select=AIC) ;
+		run;
+	proc glmselect data=total plots=all;
+		model y=x1-x50 / selection=backward(select=BIC) ;
+		run;
+	proc glmselect data=total plots=all;
+		model y=x1-x50 / selection=backward(select=SBC) ;
+		run;
+	proc glmselect data=total plots=all;
+		model y=x1-x50 / selection=backward(select=PRESS) ;
+		run;
+
+	proc glmselect data=total plots=all;
+		model y=x1-x50 / selection=lasso(select=AICC) ;
+		run;
+	proc glmselect data=total plots=all;
+		model y=x1-x50 / selection=lasso(select=AIC) ;
+		run;
+	proc glmselect data=total plots=all;
+		model y=x1-x50 / selection=lasso(select=BIC) ;
+		run;
+	proc glmselect data=total plots=all;
+		model y=x1-x50 / selection=lasso(select=SBC) ;
+		run;
+	proc glmselect data=total plots=all;
+		model y=x1-x50 / selection=lasso(select=PRESS) ;
+		run;
+
+	proc glmselect data=total plots=all;
+		model y=x1-x50 / selection=lars(select=AICC) ;
+		run;
+	proc glmselect data=total plots=all;
+		model y=x1-x50 / selection=lars(select=AIC) ;
+		run;
+	proc glmselect data=total plots=all;
+		model y=x1-x50 / selection=lars(select=BIC) ;
+		run;
+	proc glmselect data=total plots=all;
+		model y=x1-x50 / selection=lars(select=SBC) ;
+		run;
+	proc glmselect data=total plots=all;
+		model y=x1-x50 / selection=lars(select=PRESS) ;
+		run;
+	endsubmit;
+
+**********************************************************************************************************;
+
+proc iml;
+
+	sigma=i(50); *identité;
+	null=j(50,1,0);
+	mvn=randnormal(50,null,sigma); **pour faire tordre le modèle on change ça + changer la sk;
+
+	/* DGP 2 : on ajoute de l'autocorrélation entre les variables explicatives */
+	T = toeplitz({1 0.75 0.5 0.45 0.2});
+	*print T;
+
+	start ImanConoverTransform(X, C);
+	   N = nrow(X);
+	   S = J(N, ncol(X));
+	   /* T1: Create normal scores of each column */
+	   do i = 1 to ncol(X);
+	      ranks = ranktie(X[,i], "mean");          /* tied ranks */
+	      S[,i] = quantile("Normal", ranks/(N+1)); /* van der Waerden scores */
+	   end;
+	   /* T2: apply two linear transformations to the scores */
+	   CS = corr(S);        /* correlation of scores */
+	   Q = root(CS);        /* Cholesky root of correlation of scores */
+	   P = root(C);         /* Cholesky root of target correlation */
+	   T = solve(Q,P);      /* same as  T = inv(Q) * P; */
+	   Y = S*T;             /* transform scores: Y has rank corr close to target C */
+	 
+	   /* T3: Permute or reorder data in the columns of X to have the same ranks as Y */
+	   W = X;
+	   do i = 1 to ncol(Y);
+	      rank = rank(Y[,i]);          /* use ranks as subscripts, so no tied ranks */
+	      tmp = W[,i]; call sort(tmp); /* sort column by ranks */
+	      W[,i] = tmp[rank];           /* reorder the column of X by the ranks of M */
+	   end;
+	   return( W );
+	finish;
+	store module=(ImanConoverTransform);
+
+	W = ImanConoverTransform(mvn[,1:5], T);
+
+	mvn2 = W||mvn[,6:50];
+	eps2=normal(j(nrow(mvn2),1,0))*0.1;
+	Y=0.7*mvn2[,1]+0.6*mvn2[,2]+0.5*mvn2[,3]+0.4*mvn2[,4]+0.3*mvn2[,5]+eps2;
+
+	total2=y||mvn2; 
+	nom='y'||('X1':'X50');
+
+	create total2 from total2[colname=nom];
+	append from total2;
+	close total2;
+
+	submit;
+	proc glmselect data=total2 plots=all;
+		model y=x1-x50 / selection=forward(select=AICC) ;
+		run;
+	proc glmselect data=total2 plots=all;
+		model y=x1-x50 / selection=forward(select=BIC) ;
+		run;
+	proc glmselect data=total2 plots=all;
+		model y=x1-x50 / selection=forward(select=SBC) ;
+		run;
+	proc glmselect data=total2 plots=all;
+		model y=x1-x50 / selection=forward(select=PRESS) ;
+		run;
+
+	proc glmselect data=total2 plots=all;
+		model y=x1-x50 / selection=backward(select=AICC) ;
+		run;
+	proc glmselect data=total2 plots=all;
+		model y=x1-x50 / selection=backward(select=BIC) ;
+		run;
+	proc glmselect data=total2 plots=all;
+		model y=x1-x50 / selection=backward(select=SBC) ;
+		run;
+	proc glmselect data=total2 plots=all;
+		model y=x1-x50 / selection=backward(select=PRESS) ;
+		run;
+
+	proc glmselect data=total2 plots=all;
+		model y=x1-x50 / selection=lasso(select=AICC) ;
+		run;
+	proc glmselect data=total2 plots=all;
+		model y=x1-x50 / selection=lasso(select=BIC) ;
+		run;
+	proc glmselect data=total2 plots=all;
+		model y=x1-x50 / selection=lasso(select=SBC) ;
+		run;
+	proc glmselect data=total2 plots=all;
+		model y=x1-x50 / selection=lasso(select=PRESS) ;
+		run;
+
+	proc glmselect data=total2 plots=all;
+		model y=x1-x50 / selection=lars(select=AICC) ;
+		run;
+	proc glmselect data=total2 plots=all;
+		model y=x1-x50 / selection=lars(select=BIC) ;
+		run;
+	proc glmselect data=total2 plots=all;
+		model y=x1-x50 / selection=lars(select=SBC) ;
+		run;
+	proc glmselect data=total2 plots=all;
+		model y=x1-x50 / selection=lars(select=PRESS) ;
+		run;
+	endsubmit;
+
+**********************************************************************************************************;
+
+proc iml;
+
+	sigma=i(50);
+	null=j(50,1,0);
+	mvn=randnormal(50,null,sigma);
+
+	/* DGP 3: corrélation + valeurs extrêmes */
+	mu= {-6, 3, 8, -4, 5};
+	sigma={0.5,  0.6, 2.5, 1.2, 1.9};
+	do t=1 to 50;    
+		call randgen(u, "Uniform", 1, 6);    
+		i=floor(u);   
+		x1=x1//normal(0)*sigma[i]+mu[i];  
+		x2=x2//normal(0)*sigma[i]+mu[i];  
+		x3=x3//normal(0)*sigma[i]+mu[i];  
+		x4=x4//normal(0)*sigma[i]+mu[i];  
+		x5=x5//normal(0)*sigma[i]+mu[i];  
+		x = x1||x2||x3||x4||x5;
+	end;    
+
+	mvn2 = x||mvn[,6:50];
+
+	T = toeplitz({1 0.75 0.5 0.45 0.2});
+
+	start ImanConoverTransform(X, C);
+	   N = nrow(X);
+	   S = J(N, ncol(X));
+	   /* T1: Create normal scores of each column */
+	   do i = 1 to ncol(X);
+	      ranks = ranktie(X[,i], "mean");          /* tied ranks */
+	      S[,i] = quantile("Normal", ranks/(N+1)); /* van der Waerden scores */
+	   end;
+	   /* T2: apply two linear transformations to the scores */
+	   CS = corr(S);        /* correlation of scores */
+	   Q = root(CS);        /* Cholesky root of correlation of scores */
+	   P = root(C);         /* Cholesky root of target correlation */
+	   T = solve(Q,P);      /* same as  T = inv(Q) * P; */
+	   Y = S*T;             /* transform scores: Y has rank corr close to target C */
+	 
+	   /* T3: Permute or reorder data in the columns of X to have the same ranks as Y */
+	   W = X;
+	   do i = 1 to ncol(Y);
+	      rank = rank(Y[,i]);          /* use ranks as subscripts, so no tied ranks */
+	      tmp = W[,i]; call sort(tmp); /* sort column by ranks */
+	      W[,i] = tmp[rank];           /* reorder the column of X by the ranks of M */
+	   end;
+	   return( W );
+	finish;
+	store module=(ImanConoverTransform);
+
+	W = ImanConoverTransform(mvn2[,1:5], T);
+
+	mvn3 = W||mvn2[,6:50];
+	eps3=normal(j(nrow(mvn3),1,0))*0.1;
+	Y=0.7*mvn3[,1]+0.6*mvn3[,2]+0.5*mvn3[,3]+0.4*mvn3[,4]+0.3*mvn3[,5]+eps3;
+
+	total3=y||mvn3; 
+	nom='y'||('X1':'X50');
+
+	create total3 from total3[colname=nom];
+	append from total3;
+	close total3;
+
+	submit;
+
+	proc glmselect data=total3 plots=all;
+		model y=x1-x50 / selection=forward(select=AICC) ;
+		run;
+	proc glmselect data=total3 plots=all;
+		model y=x1-x50 / selection=forward(select=BIC) ;
+		run;
+	proc glmselect data=total3 plots=all;
+		model y=x1-x50 / selection=forward(select=SBC) ;
+		run;
+	proc glmselect data=total3 plots=all;
+		model y=x1-x50 / selection=forward(select=PRESS) ;
+		run;
+
+	proc glmselect data=total3 plots=all;
+		model y=x1-x50 / selection=backward(select=AICC) ;
+		run;
+	proc glmselect data=total3 plots=all;
+		model y=x1-x50 / selection=backward(select=BIC) ;
+		run;
+	proc glmselect data=total3 plots=all;
+		model y=x1-x50 / selection=backward(select=SBC) ;
+		run;
+	proc glmselect data=total3 plots=all;
+		model y=x1-x50 / selection=backward(select=PRESS) ;
+		run;
+
+	proc glmselect data=total3 plots=all;
+		model y=x1-x50 / selection=lasso(select=AICC) ;
+		run;
+	proc glmselect data=total3 plots=all;
+		model y=x1-x50 / selection=lasso(select=BIC) ;
+		run;
+	proc glmselect data=total3 plots=all;
+		model y=x1-x50 / selection=lasso(select=SBC) ;
+		run;
+	proc glmselect data=total3 plots=all;
+		model y=x1-x50 / selection=lasso(select=PRESS) ;
+		run;
+
+	proc glmselect data=total3 plots=all;
+		model y=x1-x50 / selection=lars(select=AICC) ;
+		run;
+	proc glmselect data=total3 plots=all;
+		model y=x1-x50 / selection=lars(select=BIC) ;
+		run;
+	proc glmselect data=total3 plots=all;
+		model y=x1-x50 / selection=lars(select=SBC) ;
+		run;
+	proc glmselect data=total3 plots=all;
+		model y=x1-x50 / selection=lars(select=PRESS) ;
+		run;
+	endsubmit;
+
+
+quit;
