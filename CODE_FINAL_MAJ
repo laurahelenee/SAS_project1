@@ -483,6 +483,10 @@ proc iml;
 		model y=x1-x50 / selection=lar(choose=SBC) ;
 		modelaverage nsamples=1000;
 		run;
+	proc glmselect data=total4 plots=all;
+		model y=x1-x50 / selection=lar(choose=AIC) ;
+		modelaverage nsamples=1000;
+		run;
 
 	proc glmselect data=total4 plots=all;
 		model y=x1-x50 / selection=elasticnet(choose=AICC l2=0.001) ;
