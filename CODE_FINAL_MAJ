@@ -124,7 +124,7 @@ proc iml;
 	mvn=randnormal(50,null,sigma); **pour faire tordre le modèle on change ça + changer la sk;
 
 	/* DGP 2 : on ajoute de l'autocorrélation entre les variables explicatives */
-	T = toeplitz({1 0.75 0.5 0.45 0.2});
+	T = toeplitz({1 0.9 0.8 0.75 0.85});
 	*print T;
 
 	start ImanConoverTransform(X, C);
