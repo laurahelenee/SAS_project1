@@ -409,7 +409,7 @@ proc iml;
 
 	mvn4 = W||mvn3[,6:50];
 	eps4=normal(j(nrow(mvn4),1,0))*0.1;
-	Y=0.7*mvn4[,1]+0.6*mvn4[,2]+0.5*mvn4[,3]+0.4*mvn4[,4]+0.3*mvn4[,5]+eps3;
+	Y=0.7*mvn4[,1]+0.6*mvn4[,2]+0.5*mvn4[,3]+0.4*mvn4[,4]+0.3*mvn4[,5]+eps4;
 
 	total4=y||mvn4; 
 	nom='y'||('X1':'X50');
