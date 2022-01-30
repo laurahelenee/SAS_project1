@@ -367,12 +367,12 @@ proc iml;
 	do t=1 to 50;    
 		call randgen(u, "Uniform", 1, 6);    
 		i=floor(u);   
-		x1=x1//normal(0)*sigma[i]+mu[i];  
-		x2=x2//normal(0)*sigma[i]+mu[i];  
-		x3=x3//normal(0)*sigma[i]+mu[i];  
-		x4=x4//normal(0)*sigma[i]+mu[i];  
-		x5=x5//normal(0)*sigma[i]+mu[i];  
-		x = x1||x2||x3||x4||x5;
+		x_1=x_1//normal(0)*sigma[i]+mu[i];  
+		x_2=x_2//normal(0)*sigma[i]+mu[i];  
+		x_3=x_3//normal(0)*sigma[i]+mu[i];  
+		x_4=x_4//normal(0)*sigma[i]+mu[i];  
+		x_5=x_5//normal(0)*sigma[i]+mu[i];  
+		x = x_1||x_2||x_3||x_4||x_5;
 	end;    
 
 	mvn3 = x||mvn[,6:50];
